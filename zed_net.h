@@ -184,7 +184,9 @@ ZED_NET_DEF int zed_net_tcp_make_socket_ready(zed_net_socket_t *socket);
 #include <time.h>
 
 #ifdef _WIN32
+#ifdef ZED_NET_IGNORE_DEPRECATION_WARNINGS
 #define _WINSOCK_DEPRECATED_NO_WARNINGS // This "fix" prevents deprecated warnings!
+#endif
 #include <WinSock2.h>
 #pragma comment(lib, "wsock32.lib")
 #else
