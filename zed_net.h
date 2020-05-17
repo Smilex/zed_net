@@ -10,7 +10,7 @@
 // Only UDP sockets are supported at this time, but this may later expand to include TCP.
 //
 // VERSION HISTORY
-//
+//    0.20 (5/17/2020) compilation fixes and minor polish. - Salex (alexsabourindev@gmail.com)
 //    0.19 (3/4/2016) TCP added and malloc/free calls removed.
 //                     Not backwards compatible. - Ian T. Jacobsen (itjac.me)
 //    0.18 (9/13/2015) minor polishing
@@ -100,9 +100,6 @@ typedef struct {
     int non_blocking;
     int ready;
 } zed_net_socket_t;
-
-// Closes a previously opened socket
-ZED_NET_DEF void zed_net_socket_close(zed_net_socket_t *socket);
 
 // Opens a UDP socket and binds it to a specified port
 // (use 0 to select a random open port)
@@ -279,10 +276,12 @@ ZED_NET_DEF int zed_net_udp_socket_open(zed_net_socket_t *sock, unsigned int por
     // Set the socket to non-blocking if neccessary
     if (non_blocking) {
 #ifdef _WIN32
-        if (ioctlsocket(sock->handle, FIONBIO, &non_blocking) != 0) {
+        u_long non_blocking_long = non_blocking;
+        if (ioctlsocket(sock->handle, FIONBIO, &non_blocking_long) != 0) {
             zed_net_socket_close(sock);
             return zed_net__error("Failed to set socket to non-blocking");
         }
+        non_blocking = non_blocking_long;
 #else
         if (fcntl(sock->handle, F_SETFL, O_NONBLOCK, non_blocking) != 0) {
             zed_net_socket_close(sock);
@@ -321,10 +320,12 @@ ZED_NET_DEF int zed_net_tcp_socket_open(zed_net_socket_t *sock, unsigned int por
     // Set the socket to non-blocking if neccessary
     if (non_blocking) {
 #ifdef _WIN32
-        if (ioctlsocket(sock->handle, FIONBIO, &non_blocking) != 0) {
+        u_long non_blocking_long = non_blocking;
+        if (ioctlsocket(sock->handle, FIONBIO, &non_blocking_long) != 0) {
             zed_net_socket_close(sock);
             return zed_net__error("Failed to set socket to non-blocking");
         }
+        non_blocking = non_blocking_long;
 #else
         if (fcntl(sock->handle, F_SETFL, O_NONBLOCK, non_blocking) != 0) {
             zed_net_socket_close(sock);
